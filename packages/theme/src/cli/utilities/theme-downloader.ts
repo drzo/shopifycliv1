@@ -1,4 +1,5 @@
 import {applyIgnoreFilters} from './asset-ignore.js'
+import {removeThemeFile, writeThemeFile} from './theme-fs.js'
 
 import {AdminSession} from '@shopify/cli-kit/node/session'
 import {fetchThemeAsset} from '@shopify/cli-kit/node/themes/api'
@@ -39,7 +40,7 @@ function buildDeleteTasks(remoteChecksums: Checksum[], themeFileSystem: ThemeFil
   return localFilesToBeDeleted.map((key) => {
     return {
       title: `Cleaning your local directory (removing ${key})`,
-      task: async () => themeFileSystem.delete(key),
+      task: async () => removeThemeFile(themeFileSystem.root, key),
     }
   })
 }
@@ -73,12 +74,12 @@ async function buildDownloadTasks(
     .filter(notNull)
 }
 
-async function downloadFile(theme: Theme, fileSystem: ThemeFileSystem, checksum: Checksum, session: AdminSession) {
+async function downloadFile(theme: Theme, {root}: ThemeFileSystem, checksum: Checksum, session: AdminSession) {
   const themeAsset = await fetchThemeAsset(theme.id, checksum.key, session)
 
   if (!themeAsset) return
 
-  await fileSystem.write(themeAsset)
+  await writeThemeFile(root, themeAsset)
 }
 
 function progressPct(themeChecksums: Checksum[], checksum: Checksum): number {

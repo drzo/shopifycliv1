@@ -9,6 +9,7 @@ import {Task} from '@shopify/cli-kit/node/ui'
 import {outputDebug, outputInfo, outputNewline, outputWarn} from '@shopify/cli-kit/node/output'
 
 interface UploadOptions {
+  path: string
   nodelete?: boolean
   ignore?: string[]
   only?: string[]
@@ -26,7 +27,7 @@ export async function uploadTheme(
   session: AdminSession,
   remoteChecksums: Checksum[],
   themeFileSystem: ThemeFileSystem,
-  options: UploadOptions = {},
+  options: UploadOptions,
 ) {
   const uploadResults: Map<string, Result> = new Map()
   const deleteTasks = await buildDeleteTasks(remoteChecksums, themeFileSystem, options, theme, session)

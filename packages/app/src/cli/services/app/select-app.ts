@@ -20,15 +20,6 @@ export async function selectApp(): Promise<OrganizationApp> {
   return fullSelectedApp!
 }
 
-export function extensionTypeStrategy(specs: ExtensionSpecification[], type?: string) {
-  if (!type) return
-  const spec = specs.find(
-    (spec) =>
-      spec.identifier === type || spec.externalIdentifier === type || spec.additionalIdentifiers?.includes(type),
-  )
-  return spec?.uidStrategy
-}
-
 export async function fetchAppRemoteConfiguration(
   remoteApp: MinimalOrganizationApp,
   developerPlatformClient: DeveloperPlatformClient,
@@ -37,9 +28,7 @@ export async function fetchAppRemoteConfiguration(
 ) {
   const activeAppVersion = await developerPlatformClient.activeAppVersion(remoteApp)
   const appModuleVersionsConfig =
-    activeAppVersion?.appModuleVersions.filter(
-      (module) => extensionTypeStrategy(specifications, module.specification?.identifier) !== 'uuid',
-    ) || []
+    activeAppVersion?.appModuleVersions.filter((module) => module.specification?.experience === 'configuration') || []
   if (appModuleVersionsConfig.length === 0) return undefined
   const remoteConfiguration = remoteAppConfigurationExtensionContent(
     appModuleVersionsConfig,
@@ -58,7 +47,7 @@ export function remoteAppConfigurationExtensionContent(
   flags: Flag[],
 ) {
   let remoteAppConfig: {[key: string]: unknown} = {}
-  const configSpecifications = specifications.filter((spec) => spec.uidStrategy !== 'uuid')
+  const configSpecifications = specifications.filter((spec) => spec.experience === 'configuration')
   configRegistrations.forEach((module) => {
     const configSpec = configSpecifications.find(
       (spec) => spec.identifier === module.specification?.identifier.toLowerCase(),

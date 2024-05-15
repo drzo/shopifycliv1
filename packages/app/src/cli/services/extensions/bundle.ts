@@ -90,14 +90,17 @@ export async function bundleThemeExtension(
   )
 }
 
-export async function bundleFlowTemplateExtension(extension: ExtensionInstance): Promise<void> {
+export async function bundleFlowTemplateExtension(
+  extension: ExtensionInstance,
+  options: ExtensionBuildOptions,
+): Promise<void> {
+  options.stdout.write(`Bundling Flow Template extension ${extension.localIdentifier}...`)
   const files = await flowTemplateExtensionFiles(extension)
 
   await Promise.all(
     files.map(function (filepath) {
       const relativePathName = relativePath(extension.directory, filepath)
       const outputFile = joinPath(extension.outputPath, relativePathName)
-      if (filepath === outputFile) return
       return copyFile(filepath, outputFile)
     }),
   )

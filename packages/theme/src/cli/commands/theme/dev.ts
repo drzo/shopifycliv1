@@ -7,7 +7,6 @@ import {findOrSelectTheme} from '../../utilities/theme-selector.js'
 import {showEmbeddedCLIWarning} from '../../utilities/embedded-cli-warning.js'
 import {Flags} from '@oclif/core'
 import {globalFlags} from '@shopify/cli-kit/node/cli'
-import {Theme} from '@shopify/cli-kit/node/themes/types'
 
 export default class Dev extends ThemeCommand {
   static summary =
@@ -111,11 +110,6 @@ You can run this command only in a directory that matches the [default Shopify t
       env: 'SHOPIFY_FLAG_OPEN',
       default: false,
     }),
-    'dev-preview': Flags.boolean({
-      hidden: true,
-      description: 'Enables the developer preview for the upcoming `theme dev` implementation.',
-      env: 'SHOPIFY_FLAG_BETA',
-    }),
   }
 
   static cli2Flags = [
@@ -147,15 +141,13 @@ You can run this command only in a directory that matches the [default Shopify t
 
     const {adminSession, storefrontToken} = await refreshTokens(store, flags.password)
 
-    let theme: Theme
-
     if (flags.theme) {
       const filter = {filter: {theme: flags.theme}}
-      theme = await findOrSelectTheme(adminSession, filter)
+      const theme = await findOrSelectTheme(adminSession, filter)
 
       flags = {...flags, theme: theme.id.toString()}
     } else {
-      theme = await new DevelopmentThemeManager(adminSession).findOrCreate()
+      const theme = await new DevelopmentThemeManager(adminSession).findOrCreate()
       const overwriteJson = flags['theme-editor-sync'] && theme.createdAtRuntime
 
       flags = {...flags, theme: theme.id.toString(), 'overwrite-json': overwriteJson}
@@ -169,14 +161,12 @@ You can run this command only in a directory that matches the [default Shopify t
       directory: flags.path,
       store,
       password: flags.password,
-      theme,
+      theme: flags.theme!,
       host: flags.host,
       port: flags.port,
       force: flags.force,
       open: flags.open,
       flagsToPass,
-      'dev-preview': flags['dev-preview'],
-      'theme-editor-sync': flags['theme-editor-sync'],
     })
   }
 }

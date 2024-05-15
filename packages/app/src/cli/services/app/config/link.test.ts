@@ -349,7 +349,7 @@ url = "https://api-client-config.com/preferences"
           developerPlatformClient,
         }),
       )
-      vi.mocked(selectConfigName).mockResolvedValue('shopify.app.staging.toml')
+      vi.mocked(selectConfigName).mockResolvedValue('staging')
       const remoteConfiguration = {
         ...DEFAULT_REMOTE_CONFIGURATION,
         name: 'my app',
@@ -446,7 +446,7 @@ embedded = false
         access_scopes: {scopes: 'write_products'},
       }
       vi.mocked(fetchAppRemoteConfiguration).mockResolvedValue(remoteConfiguration)
-      vi.mocked(selectConfigName).mockResolvedValue('shopify.app.staging.toml')
+      vi.mocked(selectConfigName).mockResolvedValue('staging')
 
       // When
       await link(options)
@@ -884,7 +884,7 @@ embedded = false
           developerPlatformClient,
         }),
       )
-      vi.mocked(selectConfigName).mockResolvedValue('shopify.app.staging.toml')
+      vi.mocked(selectConfigName).mockResolvedValue('staging')
       const remoteConfiguration = {
         ...DEFAULT_REMOTE_CONFIGURATION,
         name: 'my app',

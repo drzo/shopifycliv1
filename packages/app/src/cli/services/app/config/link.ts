@@ -174,7 +174,8 @@ async function loadConfigurationFileName(
   const currentToml = existingTomls[remoteApp.apiKey]
   if (currentToml) return currentToml
 
-  return selectConfigName(localApp.directory || options.directory, remoteApp.title)
+  const configName = await selectConfigName(localApp.directory || options.directory, remoteApp.title)
+  return `shopify.app.${configName}.toml`
 }
 
 function addLocalAppConfig(appConfiguration: AppConfiguration, remoteApp: OrganizationApp, configFilePath: string) {
