@@ -1,0 +1,54 @@
+.OuterContainer {
+  height: 100vh;
+  background: var(--dc-color-background);
+  overflow: hidden;
+}
+
+.DevTool {
+  position: relative;
+  display: flex;
+  gap: 1.3rem;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  color: var(--dc-color-white);
+  font-family: var(--dc-font);
+  font-size: 1.3rem;
+  font-weight: var(--dc-font-weight);
+  overflow: hidden;
+
+  a {
+    color: var(--dc-color-link);
+  }
+
+  h1 {
+    font-weight: 700;
+    font-family: var(--dc-font-mono);
+  }
+
+  main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  svg {
+    width: 1.8rem;
+  }
+}
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 1rem;
+  background: var(--dc-color-black);
+
+  svg {
+    fill: var(--dc-color-white);
+  }
+
+  .HeaderLeft {
+    display: flex;
+    height: auto;
+  }
+}

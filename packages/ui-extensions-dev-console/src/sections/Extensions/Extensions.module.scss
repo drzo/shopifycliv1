@@ -1,0 +1,47 @@
+
+.Intro {
+  padding: 0.6rem 1.5rem 1.8rem;
+  font-family: var(--dc-font-pro);
+  border-bottom: 1px solid var(--dc-color-border);
+}
+
+.ExtensionList {
+  width: 100%;
+  overflow: auto;
+  flex: 1;
+
+  table {
+    text-align: left;
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  tr {
+    line-height: 3rem;
+    border-bottom: 1px solid var(--dc-color-border);
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 0.8rem 1.5rem;
+    color: var(--dc-color-subdued);
+    font-weight: normal;
+  }
+
+  svg {
+    fill: var(--dc-color-white);
+  }
+}
+
+.Empty {
+  width: 100%;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.ActionGroup {
+  display: flex;
+  justify-content: flex-end;
+}

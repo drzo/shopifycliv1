@@ -1,0 +1,23 @@
+.Wrapper {
+   display: flex;
+   gap: 4.8rem;
+   align-items: center;
+}
+
+.QRCode {
+   display:block;
+   padding: 0.2rem 0.2rem 0 0.2rem;
+   height: 13.4rem;
+   background: var(--dc-color-white);
+   border: 1px solid var(--dc-color-border);
+}
+
+.RightColumn {
+   display:grid;
+   gap: 0.4rem;
+}
+
+.CopyLink {
+   font-family: var(--dc-font);
+   text-align: left;
+ }
