@@ -23,8 +23,6 @@ import use from '../../services/app/config/use.js'
 import {loadLocalExtensionsSpecifications} from '../extensions/load-specifications.js'
 import {Flag} from '../../services/dev/fetch.js'
 import {findConfigFiles} from '../../prompts/config.js'
-import {WebhookSubscriptionSpecIdentifier} from '../extensions/specifications/app_config_webhook_subscription.js'
-import {WebhooksSchema} from '../extensions/specifications/app_config_webhook_schemas/webhooks_schema.js'
 import {deepStrict, zod} from '@shopify/cli-kit/node/schema'
 import {fileExists, readFile, glob, findPathUp, fileExistsSync} from '@shopify/cli-kit/node/fs'
 import {readAndParseDotEnv, DotEnvFile} from '@shopify/cli-kit/node/dot-env'
@@ -110,7 +108,7 @@ export async function parseConfigurationFile<TSchema extends zod.ZodType>(
 
   if (!configurationObject) return fallbackOutput
 
-  const configuration = parseConfigurationObject(schema, filepath, configurationObject, abortOrReport)
+  const configuration = await parseConfigurationObject(schema, filepath, configurationObject, abortOrReport)
   return {...configuration, path: filepath}
 }
 
@@ -126,12 +124,12 @@ export function parseHumanReadableError(issues: zod.ZodIssueBase[]) {
 /**
  * Parses a configuration object using a schema, and returns the parsed object, or calls `abortOrReport` if the object is invalid.
  */
-export function parseConfigurationObject<TSchema extends zod.ZodType>(
+export async function parseConfigurationObject<TSchema extends zod.ZodType>(
   schema: TSchema,
   filepath: string,
   configurationObject: unknown,
   abortOrReport: AbortOrReport,
-): zod.TypeOf<TSchema> {
+): Promise<zod.TypeOf<TSchema>> {
   const fallbackOutput = {} as zod.TypeOf<TSchema>
 
   const parseResult = schema.safeParse(configurationObject)
@@ -432,7 +430,7 @@ class AppLoader {
       )
     }
 
-    const configuration = parseConfigurationObject(
+    const configuration = await parseConfigurationObject(
       specification.schema,
       configurationPath,
       configurationObject,
@@ -469,12 +467,7 @@ class AppLoader {
       ? await this.createConfigExtensionInstances(appDirectory, appConfiguration)
       : []
 
-    const webhookPromises = isCurrentAppSchema(appConfiguration)
-      ? this.createWebhookSubscriptionInstances(appDirectory, appConfiguration)
-      : []
-
-    const extensions = await Promise.all([...extensionPromises, ...configExtensionPromises, ...webhookPromises])
-
+    const extensions = await Promise.all([...extensionPromises, ...configExtensionPromises])
     const allExtensions = getArrayRejectingUndefined(extensions.flat())
 
     // Validate that all extensions have a unique handle.
@@ -547,42 +540,12 @@ class AppLoader {
     })
   }
 
-  private createWebhookSubscriptionInstances(directory: string, appConfiguration: CurrentAppConfiguration) {
-    const specification = this.findSpecificationForType(WebhookSubscriptionSpecIdentifier)
-    if (!specification) return []
-    const specConfiguration = parseConfigurationObject(
-      WebhooksSchema,
-      appConfiguration.path,
-      appConfiguration,
-      this.abortOrReport.bind(this),
-    )
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const {api_version, subscriptions = []} = specConfiguration.webhooks
-    // Find all unique subscriptions
-    const webhookSubscriptions = getArrayRejectingUndefined(
-      subscriptions.flatMap((subscription) => {
-        // compliance_topics gets handled by privacy_compliance_webhooks
-        const {uri, topics, compliance_topics: _, ...optionalFields} = subscription
-        return topics?.map((topic) => {
-          return {api_version, uri, topic, ...optionalFields}
-        })
-      }),
-    )
-
-    // Create 1 extension instance per subscription
-    const instances = webhookSubscriptions.map(async (subscription) => {
-      return this.createExtensionInstance(specification.identifier, subscription, appConfiguration.path, directory)
-    })
-
-    return instances
-  }
-
   private async createConfigExtensionInstances(directory: string, appConfiguration: CurrentAppConfiguration) {
     const extensionInstancesWithKeys = await Promise.all(
       this.specifications
-        .filter((specification) => specification.uidStrategy === 'single')
+        .filter((specification) => specification.experience === 'configuration')
         .map(async (specification) => {
-          const specConfiguration = parseConfigurationObject(
+          const specConfiguration = await parseConfigurationObject(
             specification.schema,
             appConfiguration.path,
             appConfiguration,

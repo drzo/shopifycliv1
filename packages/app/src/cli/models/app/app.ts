@@ -8,7 +8,6 @@ import {SpecsAppConfiguration} from '../extensions/specifications/types/app_conf
 import {EditorExtensionCollectionType} from '../extensions/specifications/editor_extension_collection.js'
 import {UIExtensionSchema} from '../extensions/specifications/ui_extension.js'
 import {Flag} from '../../services/dev/fetch.js'
-import {AppAccessSpecIdentifier} from '../extensions/specifications/app_config_app_access.js'
 import {zod} from '@shopify/cli-kit/node/schema'
 import {DotEnvFile} from '@shopify/cli-kit/node/dot-env'
 import {getDependencies, PackageManager, readAndParsePackageJson} from '@shopify/cli-kit/node/node-package-manager'
@@ -48,7 +47,7 @@ export const AppSchema = zod.object({
 export const AppConfigurationSchema = zod.union([LegacyAppSchema, AppSchema])
 
 export function getAppVersionedSchema(specs: ExtensionSpecification[], allowDynamicallySpecifiedConfigs = false) {
-  const isConfigSpecification = (spec: ExtensionSpecification) => spec.uidStrategy === 'single'
+  const isConfigSpecification = (spec: ExtensionSpecification) => spec.experience === 'configuration'
   const schema = specs
     .filter(isConfigSpecification)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -176,7 +175,6 @@ export interface AppInterface extends AppConfigurationInterface {
   usesWorkspaces: boolean
   dotenv?: DotEnvFile
   allExtensions: ExtensionInstance[]
-  realExtensions: ExtensionInstance[]
   draftableExtensions: ExtensionInstance[]
   specifications?: ExtensionSpecification[]
   errors?: AppErrors
@@ -220,7 +218,7 @@ export class App implements AppInterface {
   specifications?: ExtensionSpecification[]
   configSchema: zod.ZodTypeAny
   remoteFlags: Flag[]
-  realExtensions: ExtensionInstance[]
+  private realExtensions: ExtensionInstance[]
 
   constructor({
     name,
@@ -264,9 +262,7 @@ export class App implements AppInterface {
   }
 
   get draftableExtensions() {
-    return this.realExtensions.filter(
-      (ext) => ext.isUUIDStrategyExtension || ext.specification.identifier === AppAccessSpecIdentifier,
-    )
+    return this.realExtensions.filter((ext) => ext.isDraftable())
   }
 
   async updateDependencies() {

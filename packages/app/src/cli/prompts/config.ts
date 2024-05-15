@@ -19,32 +19,23 @@ import {zod} from '@shopify/cli-kit/node/schema'
 
 export async function selectConfigName(directory: string, defaultName = ''): Promise<string> {
   const namePromptOptions = buildTextPromptOptions(defaultName)
-  let configName = await renderTextPrompt(namePromptOptions)
+  let configName = slugify(await renderTextPrompt(namePromptOptions))
 
-  while (await fileExists(joinPath(directory, filenameFromName(configName)))) {
+  while (await fileExists(joinPath(directory, `shopify.app.${configName}.toml`))) {
     const askAgain = await renderConfirmationPrompt({
-      message: `Configuration file ${filenameFromName(
-        configName,
-      )} already exists. Do you want to choose a different configuration name?`,
+      message: `Configuration file shopify.app.${configName}.toml already exists. Do you want to choose a different configuration name?`,
       confirmationMessage: "Yes, I'll choose a different name",
       cancellationMessage: 'No, overwrite my existing configuration file',
     })
 
     if (askAgain) {
-      configName = await renderTextPrompt(namePromptOptions)
+      configName = slugify(await renderTextPrompt(namePromptOptions))
     } else {
       break
     }
   }
 
-  return filenameFromName(configName)
-}
-
-function filenameFromName(name: string, highlight = false): string {
-  const slugifiedName = slugify(name)
-  if (slugifiedName === '') return 'shopify.app.toml'
-  const configName = highlight ? colors.cyan(slugifiedName) : slugifiedName
-  return `shopify.app.${configName}.toml`
+  return configName
 }
 
 export async function findConfigFiles(directory: string): Promise<string[]> {
@@ -67,17 +58,18 @@ export async function selectConfigFile(directory: string): Promise<Result<string
   return ok(chosen)
 }
 
-function buildTextPromptOptions(initialAnswer: string): RenderTextPromptOptions {
+function buildTextPromptOptions(defaultValue: string): RenderTextPromptOptions {
   return {
     message: 'Configuration file name:',
-    initialAnswer,
+    defaultValue,
     validate,
-    preview: (value) => `${filenameFromName(value, true)} will be generated in your root directory`,
+    preview: (value) => `shopify.app.${colors.cyan(slugify(value))}.toml will be generated in your root directory`,
   }
 }
 
 export function validate(value: string): string | undefined {
   const result = slugify(value)
+  if (result.length === 0) return `The file name can't be empty.`
   // Max filename size for Windows/Mac including the prefix/postfix
   if (result.length > 238) return 'The file name is too long.'
 }

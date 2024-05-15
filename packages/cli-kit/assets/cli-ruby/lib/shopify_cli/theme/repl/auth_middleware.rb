@@ -17,7 +17,7 @@ module ShopifyCLI
           @env = env
           @env["PATH_INFO"] = PASSWORD_PAGE_PATH if redirect_to_password?(@env)
 
-          return @app.call(@env) if password_page?(@env) || secure_session.nil?
+          return @app.call(@env) if password_page?(@env)
 
           authenticate!
 
@@ -25,9 +25,6 @@ module ShopifyCLI
           # loaded, preventing favicons or other assets on the /password page
           # from shutting down the server.
           shutdown if index_page?(@env)
-
-          # Set preview_theme_id into the session.
-          @app.call(@env)
 
           [
             200,

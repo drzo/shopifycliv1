@@ -54,7 +54,9 @@ async function infoApp(app: AppInterface, options: InfoOptions): Promise<OutputM
       allExtensions: extensionsInfo,
     }
     if ('realExtensions' in appWithSupportedExtensions) {
-      appWithSupportedExtensions.realExtensions = withPurgedSchemas(appWithSupportedExtensions.realExtensions)
+      appWithSupportedExtensions.realExtensions = withPurgedSchemas(
+        appWithSupportedExtensions.realExtensions as ExtensionInstance[],
+      )
     }
     if ('specifications' in appWithSupportedExtensions) {
       appWithSupportedExtensions = {

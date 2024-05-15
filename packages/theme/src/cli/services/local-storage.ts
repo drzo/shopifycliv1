@@ -24,7 +24,7 @@ function themeLocalStorage() {
 function developmentThemeLocalStorage() {
   if (!_developmentThemeLocalStorageInstance) {
     _developmentThemeLocalStorageInstance = new LocalStorage<DevelopmentThemeLocalStorageSchema>({
-      projectName: 'shopify-cli-development-theme-config',
+      projectName: 'shopify-cli-development-theme-conf',
     })
   }
   return _developmentThemeLocalStorageInstance

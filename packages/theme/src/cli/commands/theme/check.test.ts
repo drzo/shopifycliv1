@@ -4,7 +4,6 @@ import {Config} from '@oclif/core'
 import {themeCheckRun, Theme, Config as ThemeConfig, Offense} from '@shopify/theme-check-node'
 
 vi.mock('@shopify/theme-check-node')
-const CommandConfig = new Config({root: __dirname})
 
 describe('Check', () => {
   let exitSpy: SpyInstance
@@ -23,8 +22,8 @@ describe('Check', () => {
     const path = '/my-theme'
 
     async function run(argv: string[]) {
-      await CommandConfig.load()
-      const check = new Check([`--path=${path}`, ...argv], CommandConfig)
+      const config = {} as Config
+      const check = new Check([`--path=${path}`, ...argv], config)
 
       await check.run()
     }

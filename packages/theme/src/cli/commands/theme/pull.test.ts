@@ -21,8 +21,6 @@ vi.mock('@shopify/cli-kit/node/ruby')
 vi.mock('@shopify/cli-kit/node/session')
 vi.mock('@shopify/cli-kit/node/ui')
 
-const CommandConfig = new Config({root: __dirname})
-
 describe('Pull', () => {
   const adminSession = {token: '', storeFqdn: ''}
   const path = '/my-theme'
@@ -118,8 +116,8 @@ describe('Pull', () => {
     }
     vi.spyOn(DevelopmentThemeManager.prototype, 'fetch').mockResolvedValue(theme)
 
-    await CommandConfig.load()
-    const pull = new Pull([`--path=${path}`, ...argv], CommandConfig)
+    const config = {} as Config
+    const pull = new Pull([`--path=${path}`, ...argv], config)
 
     await pull.run()
   }

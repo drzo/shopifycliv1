@@ -46,8 +46,6 @@ import {
   MigrateToUiExtensionVariables,
 } from '../../api/graphql/extension_migrate_to_ui_extension.js'
 import {MigrateAppModuleSchema, MigrateAppModuleVariables} from '../../api/graphql/extension_migrate_app_module.js'
-import appWebhookSubscriptionSpec from '../extensions/specifications/app_config_webhook_subscription.js'
-import appAccessSpec from '../extensions/specifications/app_config_app_access.js'
 import {vi} from 'vitest'
 import {joinPath} from '@shopify/cli-kit/node/path'
 
@@ -249,32 +247,6 @@ export async function testAppConfigExtensions(emptyConfig = false): Promise<Exte
   return extension
 }
 
-export async function testAppAccessConfigExtension(emptyConfig = false): Promise<ExtensionInstance> {
-  const configuration = emptyConfig
-    ? ({} as unknown as BaseConfigType)
-    : ({
-        access: {
-          admin: {direct_api_mode: 'online'},
-        },
-        access_scopes: {
-          scopes: 'read_products,write_products',
-          use_legacy_install_flow: true,
-        },
-        auth: {
-          redirect_urls: ['https://example.com/auth/callback'],
-        },
-      } as unknown as BaseConfigType)
-
-  const extension = new ExtensionInstance({
-    configuration,
-    configurationPath: 'shopify.app.toml',
-    directory: './',
-    specification: appAccessSpec,
-  })
-
-  return extension
-}
-
 export async function testPaymentExtensions(directory = './my-extension'): Promise<ExtensionInstance> {
   const configuration = {
     name: 'Payment Extension Name',
@@ -356,28 +328,32 @@ export async function testWebhookExtensions({emptyConfig = false, complianceTopi
   return complianceTopics ? [webhooksExtension, privacyExtension] : webhooksExtension
 }
 
-export async function testSingleWebhookSubscriptionExtension({
-  emptyConfig = false,
-  topic = 'orders/delete',
-} = {}): Promise<ExtensionInstance> {
-  // configuration should be a single webhook subscription because of how
-  // we create the extension instances in loader
-  const configuration = emptyConfig
-    ? ({} as unknown as BaseConfigType)
-    : ({
-        topic,
-        api_version: '2024-01',
-        uri: 'https://my-app.com/webhooks',
-      } as unknown as BaseConfigType)
+export async function testWebPixelExtension(directory = './my-extension'): Promise<ExtensionInstance> {
+  const configuration = {
+    name: 'web pixel name',
+    type: 'web_pixel' as const,
+    metafields: [],
+    runtime_context: 'strict',
+    customer_privacy: {
+      analytics: false,
+      marketing: true,
+      preferences: false,
+      sale_of_data: 'enabled',
+    },
+    settings: [],
+  }
 
-  const webhooksExtension = new ExtensionInstance({
-    configuration,
+  const allSpecs = await loadLocalExtensionsSpecifications()
+  const specification = allSpecs.find((spec) => spec.identifier === 'web_pixel_extension')!
+  const parsed = specification.schema.parse(configuration)
+  const extension = new ExtensionInstance({
+    configuration: parsed,
     configurationPath: '',
-    directory: './',
-    specification: appWebhookSubscriptionSpec,
+    directory,
+    specification,
   })
 
-  return webhooksExtension
+  return extension
 }
 
 export async function testTaxCalculationExtension(directory = './my-extension'): Promise<ExtensionInstance> {
@@ -1062,5 +1038,5 @@ export async function buildVersionedAppSchema() {
 }
 
 export async function configurationSpecifications() {
-  return (await loadLocalExtensionsSpecifications()).filter((spec) => spec.uidStrategy === 'single')
+  return (await loadLocalExtensionsSpecifications()).filter((spec) => spec.experience === 'configuration')
 }

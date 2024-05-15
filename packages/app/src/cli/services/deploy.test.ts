@@ -517,11 +517,11 @@ async function testDeployBundle({
 }: TestDeployBundleInput) {
   // Given
   const extensionsPayload: {[key: string]: string} = {}
-  for (const extension of app.allExtensions.filter((ext) => ext.isUUIDStrategyExtension)) {
+  for (const extension of app.allExtensions.filter((ext) => ext.isUuidManaged())) {
     extensionsPayload[extension.localIdentifier] = extension.localIdentifier
   }
   const extensionsNonUuidPayload: {[key: string]: string} = {}
-  for (const extension of app.allExtensions.filter((ext) => !ext.isUUIDStrategyExtension)) {
+  for (const extension of app.allExtensions.filter((ext) => !ext.isUuidManaged())) {
     extensionsNonUuidPayload[extension.localIdentifier] = extension.localIdentifier
   }
   const identifiers = {
