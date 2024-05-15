@@ -1,0 +1,21 @@
+type = "web_pixel_extension"
+name = "{{ name }}"
+
+runtime_context = "strict"
+
+[customer_privacy]
+analytics = false
+preferences = true
+marketing = false
+sale_of_data = "enabled"
+
+[settings]
+type = "object"
+
+[settings.fields.accountID]
+name = "Account ID"
+description = "Account ID"
+type = "single_line_text_field"
+validations =  [
+  { name = "min", value = "1" }
+]
