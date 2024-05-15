@@ -1,0 +1,20 @@
+.PreviewLinksTitle {
+  font-style: italic;
+  font-weight: var(--dc-font-weight-500);
+  display: block;
+  padding-bottom: 1.8rem;
+}
+
+.PreviewLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-left: 0.8rem;
+  padding-right: 0.8rem;
+}
+
+.PreviewLink {
+  display: flex;
+  align-items: center;
+  gap: 2.6rem;
+}

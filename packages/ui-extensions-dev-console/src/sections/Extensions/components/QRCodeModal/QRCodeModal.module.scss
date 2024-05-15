@@ -1,0 +1,30 @@
+.Wrapper {
+   display: flex;
+   gap: 4rem;
+   align-items: center;
+   padding-bottom: 0.6rem;
+}
+
+.LeftColumn {
+   width: 17.5rem;
+   display: flex;
+   flex-direction: column;
+   gap: 1.2rem;
+   line-height: 1.4rem;
+   font-size: 1.2rem;
+}
+
+.QRCode {
+   display:block;
+   padding: 0.2rem 0.2rem 0 0.2rem;
+   background: var(--dc-color-white);
+}
+
+.RightColumn {
+   display:grid;
+   gap: 0.4rem;
+}
+
+.CopyLink {
+   text-align: left;
+ }

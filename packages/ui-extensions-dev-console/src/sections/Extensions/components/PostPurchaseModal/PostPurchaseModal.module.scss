@@ -1,0 +1,21 @@
+.Instructions {
+   display: grid;
+   gap: 2.6rem;
+   margin: 0;
+   padding: 0 2rem;
+   line-height: 1.5rem;
+}
+
+.UrlContainer {
+   display: flex;
+   gap: 0.4rem;
+   color: var(--dc-color-grey-400);
+   padding: 1.2rem 0 0;
+   align-items: top;
+   line-height: 2.4rem;
+
+   .CopyButton {
+      width:24px;
+      height:24px;
+   }
+}
