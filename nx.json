@@ -1,0 +1,34 @@
+{
+  "extends": "@nrwl/workspace/presets/npm.json",
+  "npmScope": "@shopify",
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build"
+        ],
+        "runtimeCacheInputs": ["node -v", "yarn tsc --version"]
+      }
+    }
+  },
+  "affected": {
+    "defaultBase": "main"
+  },
+  "targetDefaults": {
+    "clean": {
+      "dependsOn": ["^clean"]
+    },
+    "build": {
+      "dependsOn": ["^build"]
+    },
+    "lint": {
+    },
+    "lint:fix": {
+      "dependsOn": ["build"]
+    },
+    "type-check": {
+      "dependsOn": ["^build"]
+    }
+  }
+}
