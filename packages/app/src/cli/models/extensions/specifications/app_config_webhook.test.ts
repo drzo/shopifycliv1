@@ -38,11 +38,6 @@ describe('webhooks', () => {
               uri: 'arn:aws:events:us-west-2::event-source/aws.partner/shopify.com/1234567890/SOME_PATH',
               sub_topic: 'type:metaobject_one',
             },
-            {
-              topics: ['products/create', 'products/update'],
-              uri: 'https://example.com/webhooks/products',
-              filter: 'title:shoes',
-            },
           ],
         },
       }
@@ -106,16 +101,6 @@ describe('webhooks', () => {
             topic: 'metaobjects/delete',
             uri: 'arn:aws:events:us-west-2::event-source/aws.partner/shopify.com/1234567890/SOME_PATH',
           },
-          {
-            filter: 'title:shoes',
-            topic: 'products/create',
-            uri: 'https://example.com/webhooks/products',
-          },
-          {
-            filter: 'title:shoes',
-            topic: 'products/update',
-            uri: 'https://example.com/webhooks/products',
-          },
         ],
       })
     })
@@ -161,11 +146,6 @@ describe('webhooks', () => {
             topic: 'orders/create',
             uri: 'https://valid-url',
           },
-          {
-            filter: 'title:shoes',
-            topic: 'products/create',
-            uri: 'https://example.com/webhooks/products',
-          },
         ],
       }
       const webhookSpec = spec
@@ -195,11 +175,6 @@ describe('webhooks', () => {
               include_fields: ['variants', 'title'],
               topics: ['orders/create'],
               uri: 'https://valid-url',
-            },
-            {
-              filter: 'title:shoes',
-              topics: ['products/create'],
-              uri: 'https://example.com/webhooks/products',
             },
           ],
         },
@@ -258,21 +233,6 @@ describe('webhooks', () => {
               sub_topic: 'subtopic',
               uri: 'https://example.com/webhooks',
             },
-            {
-              topics: ['products/create'],
-              uri: 'https://example.com/webhooks',
-              filter: 'title:shoes',
-            },
-            {
-              topics: ['products/update'],
-              uri: 'https://example.com/webhooks',
-              filter: 'title:shoes',
-            },
-            {
-              topics: ['products/update'],
-              uri: 'https://example.com/webhooks',
-              filter: 'title:shirts',
-            },
           ],
           privacy_compliance: undefined,
         },
@@ -307,16 +267,6 @@ describe('webhooks', () => {
               topics: ['metaobjects/create'],
               sub_topic: 'subtopic',
               uri: 'https://example.com/webhooks',
-            },
-            {
-              topics: ['products/create', 'products/update'],
-              uri: 'https://example.com/webhooks',
-              filter: 'title:shoes',
-            },
-            {
-              topics: ['products/update'],
-              uri: 'https://example.com/webhooks',
-              filter: 'title:shirts',
             },
           ],
           privacy_compliance: undefined,

@@ -27,7 +27,6 @@ import {gql} from 'graphql-request'
 import {AdminSession} from '@shopify/cli-kit/node/session'
 import {outputCompleted, outputInfo, outputWarn} from '@shopify/cli-kit/node/output'
 import {isTruthy} from '@shopify/cli-kit/node/context/utilities'
-import {isSpin} from '@shopify/cli-kit/node/context/spin'
 
 /**
  * A scope supported by the Shopify Admin API.
@@ -125,7 +124,7 @@ ${outputToken.json(applications)}
   let newSession = {}
 
   function throwOnNoPrompt() {
-    if (!noPrompt || (isSpin() && firstPartyDev())) return
+    if (!noPrompt) return
     throw new AbortError(
       `The currently available CLI credentials are invalid.
 

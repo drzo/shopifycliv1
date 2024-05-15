@@ -20,7 +20,7 @@ describe('selectConfigName', () => {
       // Then
       expect(renderTextPrompt).toHaveBeenCalledOnce()
       expect(renderConfirmationPrompt).not.toHaveBeenCalled()
-      expect(result).toEqual('shopify.app.staging.toml')
+      expect(result).toEqual('staging')
     })
   })
 
@@ -37,7 +37,7 @@ describe('selectConfigName', () => {
       // Then
       expect(renderTextPrompt).toHaveBeenCalledOnce()
       expect(renderConfirmationPrompt).toHaveBeenCalledOnce()
-      expect(result).toEqual('shopify.app.staging.toml')
+      expect(result).toEqual('staging')
     })
   })
 
@@ -55,7 +55,7 @@ describe('selectConfigName', () => {
       // Then
       expect(renderTextPrompt).toHaveBeenCalledTimes(2)
       expect(renderConfirmationPrompt).toHaveBeenCalledOnce()
-      expect(result).toEqual('shopify.app.pro.toml')
+      expect(result).toEqual('pro')
     })
   })
 
@@ -68,11 +68,11 @@ describe('selectConfigName', () => {
       const result = await selectConfigName(tmp)
 
       // Then
-      expect(result).toEqual('shopify.app.my-app.toml')
+      expect(result).toEqual('my-app')
     })
   })
 
-  test('shows the default name as the initial text when provided', async () => {
+  test('shows the default name as the placeholder when provided', async () => {
     await inTemporaryDirectory(async (tmp) => {
       // Given
       vi.mocked(renderTextPrompt).mockResolvedValueOnce('staging')
@@ -82,7 +82,7 @@ describe('selectConfigName', () => {
 
       // Then
       expect(renderTextPrompt).toHaveBeenCalledWith({
-        initialAnswer: 'My app',
+        defaultValue: 'My app',
         message: 'Configuration file name:',
         preview: expect.any(Function),
         validate: expect.any(Function),
@@ -147,6 +147,14 @@ describe('validate', () => {
 
     // Then
     expect(result).toBeUndefined()
+  })
+
+  test('returns an error when the generated name is empty', () => {
+    // Given / When
+    const result = validate('- -')
+
+    // Then
+    expect(result).toEqual("The file name can't be empty.")
   })
 
   test('returns an error when the generated name is too long', () => {

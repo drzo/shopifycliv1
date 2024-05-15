@@ -10,7 +10,7 @@ import {selectConfigName} from '../../../prompts/config.js'
 import {loadApp, loadAppConfiguration} from '../../../models/app/loader.js'
 import {InvalidApiKeyErrorMessage, fetchOrCreateOrganizationApp, appFromId} from '../../context.js'
 import {getCachedCommandInfo} from '../../local-storage.js'
-import {AppInterface, CurrentAppConfiguration, EmptyApp} from '../../../models/app/app.js'
+import {AppConfigurationInterface, AppInterface, CurrentAppConfiguration, EmptyApp} from '../../../models/app/app.js'
 import {fetchAppRemoteConfiguration} from '../select-app.js'
 import {DeveloperPlatformClient} from '../../../utilities/developer-platform-client.js'
 import {MinimalAppIdentifiers, OrganizationApp} from '../../../models/organization.js'
@@ -84,54 +84,6 @@ describe('link', () => {
       // Then
       expect(selectConfigName).not.toHaveBeenCalled()
       expect(fileExistsSync(joinPath(tmp, 'shopify.app.default-value.toml'))).toBeTruthy()
-    })
-  })
-
-  test('does not ask for a name when the selected app is already linked', async () => {
-    await inTemporaryDirectory(async (tmp) => {
-      // Given
-      const developerPlatformClient = buildDeveloperPlatformClient()
-      const options: LinkOptions = {
-        directory: tmp,
-        developerPlatformClient,
-      }
-      const remoteApp = mockRemoteApp({developerPlatformClient})
-      const filePath = joinPath(tmp, 'shopify.app.staging.toml')
-      const initialContent = `
-      client_id = "${remoteApp.apiKey}"
-      `
-      writeFileSync(filePath, initialContent)
-      vi.mocked(loadApp).mockResolvedValue(await mockApp(tmp, undefined, [], 'current'))
-      vi.mocked(fetchOrCreateOrganizationApp).mockResolvedValue(remoteApp)
-
-      // When
-      await link(options)
-
-      // Then
-      expect(selectConfigName).not.toHaveBeenCalled()
-      const content = await readFile(joinPath(tmp, 'shopify.app.staging.toml'))
-      const expectedContent = `# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
-
-client_id = "12345"
-extension_directories = [ ]
-name = "app1"
-application_url = "https://example.com"
-embedded = true
-
-[access_scopes]
-# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-use_legacy_install_flow = true
-
-[auth]
-redirect_urls = [ "https://example.com/callback1" ]
-
-[webhooks]
-api_version = "2023-07"
-
-[pos]
-embedded = false
-`
-      expect(content).toEqual(expectedContent)
     })
   })
 
@@ -349,7 +301,7 @@ url = "https://api-client-config.com/preferences"
           developerPlatformClient,
         }),
       )
-      vi.mocked(selectConfigName).mockResolvedValue('shopify.app.staging.toml')
+      vi.mocked(selectConfigName).mockResolvedValue('staging')
       const remoteConfiguration = {
         ...DEFAULT_REMOTE_CONFIGURATION,
         name: 'my app',
@@ -446,7 +398,7 @@ embedded = false
         access_scopes: {scopes: 'write_products'},
       }
       vi.mocked(fetchAppRemoteConfiguration).mockResolvedValue(remoteConfiguration)
-      vi.mocked(selectConfigName).mockResolvedValue('shopify.app.staging.toml')
+      vi.mocked(selectConfigName).mockResolvedValue('staging')
 
       // When
       await link(options)
@@ -884,7 +836,7 @@ embedded = false
           developerPlatformClient,
         }),
       )
-      vi.mocked(selectConfigName).mockResolvedValue('shopify.app.staging.toml')
+      vi.mocked(selectConfigName).mockResolvedValue('staging')
       const remoteConfiguration = {
         ...DEFAULT_REMOTE_CONFIGURATION,
         name: 'my app',
@@ -1109,6 +1061,15 @@ async function mockApp(
   localApp.directory = directory
   setPathValue(localApp, 'remoteFlags', flags)
   return localApp
+}
+
+async function mockAppConfiguration(directory = ''): Promise<AppConfigurationInterface> {
+  const {schema: configSchema} = await buildVersionedAppSchema()
+  return {
+    directory,
+    configuration: {scopes: '', path: directory},
+    configSchema,
+  }
 }
 
 function mockRemoteApp(extraRemoteAppFields: Partial<OrganizationApp> = {}) {

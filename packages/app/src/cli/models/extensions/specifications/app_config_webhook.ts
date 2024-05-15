@@ -37,8 +37,7 @@ function mergeAllWebhooks(subscriptions: WebhookSubscription[]): WebhookSubscrip
       (sub) =>
         sub.uri === subscription.uri &&
         sub.sub_topic === subscription.sub_topic &&
-        sub.include_fields === subscription.include_fields &&
-        sub.filter === subscription.filter,
+        sub.include_fields === subscription.include_fields,
     )
     if (existingSubscription) {
       if (subscription.compliance_topics) {
