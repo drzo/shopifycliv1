@@ -1,0 +1,5 @@
+type="backend"
+
+[commands]
+dev = "npm run dev"
+build = "$npm_execpath run build"
