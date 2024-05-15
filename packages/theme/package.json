@@ -1,0 +1,34 @@
+{
+  "name": "@shopify/theme",
+  "version": "0.5.14",
+  "private": true,
+  "description": "Utilities building and publishing themes",
+  "type": "module",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "clean": "shx rm -rf dist",
+    "build": "rimraf dist/ && tsc -b ./tsconfig.build.json",
+    "lint": "prettier -c src/** && eslint \"src/**/*.ts\"",
+    "lint:fix": "prettier -w src/** && eslint 'src/**/*.ts' --fix",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "tsc": "tsc --noEmit"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../.eslintrc.cjs"
+    ]
+  },
+  "dependencies": {
+    "@oclif/core": "^1.0",
+    "@shopify/cli-kit": "3.1.0"
+  },
+  "devDependencies": {
+    "vitest": "^0.17.1"
+  },
+  "oclif": {
+    "commands": "dist/cli/commands"
+  }
+}
