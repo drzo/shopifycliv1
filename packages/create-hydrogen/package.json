@@ -1,0 +1,81 @@
+{
+  "name": "@shopify/create-hydrogen",
+  "version": "3.8.0",
+  "private": false,
+  "description": "A CLI tool to create a new Shopify hydrogen app.",
+  "type": "module",
+  "keywords": [
+    "shopify",
+    "shopify-cli",
+    "shopify-partners",
+    "shopify-hydrogen"
+  ],
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "bin": {
+    "create-hydrogen": "./bin/run.js"
+  },
+  "files": [
+    "/bin/run.js",
+    "/bin/run.cmd",
+    "/dist",
+    "templates",
+    "/oclif.manifest.json"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "@shopify:registry": "https://registry.npmjs.org"
+  },
+  "scripts": {
+    "clean": "rimraf dist/",
+    "build": "tsc -b ./tsconfig.build.json",
+    "prepack": "cross-env NODE_ENV=production yarn run build",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint 'src/**/*.ts' --fix",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "tsc": "tsc --noEmit"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../.eslintrc.cjs"
+    ],
+    "rules": {
+      "no-warning-comments": "off"
+    }
+  },
+  "dependencies": {
+    "@oclif/core": "1.9.2",
+    "@shopify/cli-kit": "3.8.0",
+    "download": "8.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^0.17.1",
+    "@types/download": "8.0.0"
+  },
+  "engine-strict": true,
+  "engines": {
+    "node": ">=14.13.1"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "oclif": {
+    "bin": "create-hydrogen",
+    "commands": "dist/commands",
+    "additionalHelpFlags": [
+      "-h"
+    ],
+    "hooks": {
+      "prerun": "@shopify/cli-kit/node/hooks/prerun",
+      "postrun": "@shopify/cli-kit/node/hooks/postrun"
+    }
+  }
+}

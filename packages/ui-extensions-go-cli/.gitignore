@@ -1,0 +1,9 @@
+shopify-extensions
+shopify-extensions.exe
+shopify-extensions-debug
+node_modules
+__debug_bin
+.DS_Store
+tmp/
+*.log
+*.tsbuildinfo
