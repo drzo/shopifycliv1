@@ -1,0 +1,8 @@
+type = "ui_extension"
+name = "test-ui-extension"
+
+[[extension_points]]
+target = "Checkout::Actions::RenderBefore"
+
+[[extension_points]]
+target = "Admin::CheckoutEditor::RenderSettings"
