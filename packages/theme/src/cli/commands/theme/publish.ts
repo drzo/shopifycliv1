@@ -1,0 +1,41 @@
+import {getThemeStore} from '../../utilities/theme-store.js'
+import ThemeCommand from '../../utilities/theme-command.js'
+import {themeFlags} from '../../flags.js'
+import {execCLI} from '../../utilities/ruby.js'
+import {Flags} from '@oclif/core'
+import {globalFlags} from '@shopify/cli-kit/node/cli'
+import {ensureAuthenticatedThemes} from '@shopify/cli-kit/node/session'
+
+export default class Publish extends ThemeCommand {
+  static description = 'Set a remote theme as the live theme.'
+
+  static args = [{name: 'themeId', description: 'The ID of the theme', required: false}]
+
+  static flags = {
+    ...globalFlags,
+    password: themeFlags.password,
+    force: Flags.boolean({
+      char: 'f',
+      description: 'Skip confirmation.',
+      env: 'SHOPIFY_FLAG_FORCE',
+    }),
+    store: themeFlags.store,
+  }
+
+  static cli2Flags = ['force']
+
+  async run(): Promise<void> {
+    const {flags, args} = await this.parse(Publish)
+
+    const store = getThemeStore(flags)
+    const flagsToPass = this.passThroughFlags(flags, {allowedFlags: Publish.cli2Flags})
+    const command = ['theme', 'publish']
+    if (args.themeId) {
+      command.push(args.themeId)
+    }
+    command.push(...flagsToPass)
+
+    const adminSession = await ensureAuthenticatedThemes(store, flags.password)
+    await execCLI(command, {adminSession})
+  }
+}
