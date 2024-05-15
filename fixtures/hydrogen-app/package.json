@@ -1,0 +1,16 @@
+{
+    "name": "@shopify/fixtures-hydrogen-app",
+    "version": "3.0.27",
+    "license": "UNLICENSED",
+    "private": true,
+    "scripts": {
+      "shopify": "../shopify",
+      "dev": "../shopify hydrogen-app dev"
+    },
+    "dependencies": {
+      "@shopify/cli": "3.0.27",
+      "@shopify/app": "3.0.27",
+      "@shopify/hydrogen": "1.0.2",
+      "react": "^18.1.0"
+    }
+  }
