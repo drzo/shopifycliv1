@@ -1,0 +1,68 @@
+{
+  "name": "@shopify/theme",
+  "version": "3.60.0",
+  "private": true,
+  "description": "Utilities for building and publishing themes",
+  "homepage": "https://github.com/shopify/cli#readme",
+  "bugs": {
+    "url": "https://github.com/Shopify/cli/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shopify/cli.git",
+    "directory": "packages/theme"
+  },
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "/dist",
+    "/oclif.manifest.json"
+  ],
+  "scripts": {
+    "build": "nx build",
+    "clean": "nx clean",
+    "lint": "nx lint",
+    "lint:fix": "nx lint:fix",
+    "prepack": "cross-env NODE_ENV=production pnpm nx build && cp ../../README.md README.md",
+    "test": "nx run theme:test",
+    "test:watch": "nx test:watch",
+    "type-check": "nx type-check"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../.eslintrc.cjs"
+    ]
+  },
+  "dependencies": {
+    "@oclif/core": "3.26.5",
+    "@shopify/cli-kit": "3.60.0",
+    "@shopify/theme-check-node": "2.5.1",
+    "@shopify/theme-language-server-node": "1.11.1",
+    "yaml": "2.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "18.19.33",
+    "@vitest/coverage-istanbul": "^0.34.6",
+    "node-stream-zip": "^1.15.0",
+    "vitest": "^0.34.6"
+  },
+  "engines": {
+    "node": ">=18.12.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "publishConfig": {
+    "@shopify:registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "engine-strict": true
+}
