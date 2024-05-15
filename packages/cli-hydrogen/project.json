@@ -1,0 +1,7 @@
+{
+    "root": "packages/cli-hydrogen",
+    "sourceRoot": "packages/cli-hydrogen/src",
+    "projectType": "library",
+    "implicitDependencies": [],
+    "tags": ["scope:feature"]
+}

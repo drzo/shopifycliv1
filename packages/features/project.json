@@ -1,0 +1,17 @@
+{
+  "name": "features",
+  "root": "packages/features",
+  "sourceRoot": "packages/features",
+  "projectType": "library",
+  "implicitDependencies": ["create-app", "create-hydrogen", "cli-main"],
+  "tags": ["scope:e2e"],
+  "targets": {
+    "test": {
+      "executor": "nx:run-script",
+      "dependsOn": ["^build"],
+      "options": {
+        "script": "test:acceptance"
+      }
+    }
+  }
+}
