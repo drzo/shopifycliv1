@@ -1,0 +1,8 @@
+type = "customer_acounts_ui"
+name = "customer-accounts-ui"
+
+extension_points = [
+  'CustomerAccount::FullPage::RenderWithin',
+]
+
+categories = []
