@@ -1,0 +1,176 @@
+name: shopify-cli
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch-name:
+        type: string
+        description: 'Branch'
+        required: true
+        default: 'main'
+      node-version:
+        description: 'Node version'
+        required: true
+        default: '18.7.0'
+        type: choice
+        options:
+          - 14.20.0
+          - 16.17.0
+          - 18.7.0
+      os:
+        description: 'Operating system'
+        required: true
+        default: 'ubuntu-latest'
+        type: choice
+        options:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+      debug-enabled:
+        type: boolean
+        description: 'Enable tmate debugging'
+        required: true
+        default: true
+  push:
+    branches:
+      - main
+  pull_request:
+    paths-ignore:
+      - '**.md'
+
+concurrency:
+  group: shopify-cli-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  DEBUG: "1"
+  SHOPIFY_CLI_ENV: development
+  SHOPIFY_CONFIG: debug
+  YARN_VERSION: "1.22.19"
+  RUBY_VERSION: "3.1.2"
+  BUNDLER_VERSION: "2.3.18"
+  PNPM_VERSION: "7.18.1"
+
+jobs:
+  fixture:
+    name: Fixture
+    runs-on: 'ubuntu-latest'
+    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout [main]
+        with:
+          fetch-depth: 0
+      - name: Setup deps
+        uses: ./.github/actions/setup-cli-deps
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Build the fixture app
+        run: pnpm run shopify app build --path ./fixtures/app --skip-dependencies-installation
+
+  main:
+    name: Node ${{ matrix.node }} in ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    if: ${{ github.event_name == 'push' }}
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        node: ['14.20.0', '16.17.0', '18.7.0']
+    steps:
+      - uses: actions/checkout@v2
+        name: Checkout [main]
+        with:
+          fetch-depth: 0
+      - name: Setup deps
+        uses: ./.github/actions/setup-cli-deps
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Build
+        run: pnpm nx affected --target=build
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == '18.7.0' }}
+      - name: Lint
+        run: pnpm nx affected --target=lint
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == '18.7.0' }}
+      - name: Type-check
+        run: pnpm nx affected --target=type-check
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.node == '18.7.0' }}
+      - name: Unit tests
+        run: pnpm nx affected --target=test --exclude=features
+      - name: Acceptance tests
+        if: ${{ matrix.node == '18.7.0' }}
+        run: pnpm nx run features:test
+
+  pr-platform-agnostic:
+    name: ${{ matrix.target }} with Node ${{ matrix.node }} in ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    if: ${{ github.event_name == 'pull_request' }}
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        os: ['ubuntu-latest']
+        node: ["18.7.0"]
+        target: ['build', 'type-check', 'lint']
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - name: Setup deps
+        uses: ./.github/actions/setup-cli-deps
+        with:
+          node-version: ${{ matrix.node }}
+      - name: ${{ matrix.target }}
+        run: pnpm nx run-many --all --skip-nx-cache --target=${{ matrix.target }}
+
+  pr-platform-dependent:
+    name: Testing with Node ${{ matrix.node }} in ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs: pr-platform-agnostic
+    if: ${{ github.event_name == 'pull_request' }}
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'windows-latest', 'macos-latest']
+        node: ['14.20.0', '16.17.0', '18.7.0']
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+      - name: Setup deps
+        uses: ./.github/actions/setup-cli-deps
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Unit tests
+        run: pnpm nx run-many --all --skip-nx-cache --target=test --exclude=features
+      - name: Acceptance tests
+        if: ${{ matrix.node == '18.7.0' }}
+        run: pnpm nx run features:test
+
+  manually-triggered:
+    name: Testing with Node ${{ inputs.node-version }} in ${{ inputs.os }}
+    runs-on: ${{ inputs.os }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ inputs.branch-name }}
+          fetch-depth: 0
+      - name: Setup deps
+        uses: ./.github/actions/setup-cli-deps
+        with:
+          node-version: ${{ inputs.node-version }}
+      - name: Unit tests
+        run: pnpm nx run-many --all --skip-nx-cache --target=test --exclude=features
+      - name: Acceptance tests
+        run: pnpm nx run features:test
+      - name: Setup tmate session
+        if: ${{ failure() && inputs.debug-enabled }}
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
