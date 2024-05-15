@@ -1,0 +1,372 @@
+import {AbortSilentError, FatalError as Fatal} from './error.js'
+import {collectLog, consoleError, consoleLog, Logger, LogLevel, outputDebug, outputWhereAppropriate} from './output.js'
+import {isUnitTest} from './context/local.js'
+import {ConcurrentOutput, ConcurrentOutputProps} from '../../private/node/ui/components/ConcurrentOutput.js'
+import {render, renderOnce} from '../../private/node/ui.js'
+import {alert} from '../../private/node/ui/alert.js'
+import {AlertProps, CustomSection} from '../../private/node/ui/components/Alert.js'
+import {FatalError} from '../../private/node/ui/components/FatalError.js'
+import ScalarDict from '../../private/node/ui/components/Table/ScalarDict.js'
+import {Table, TableColumn, TableProps} from '../../private/node/ui/components/Table/Table.js'
+import {SelectPrompt, SelectPromptProps} from '../../private/node/ui/components/SelectPrompt.js'
+import {Tasks, Task} from '../../private/node/ui/components/Tasks.js'
+import {TextPrompt, TextPromptProps} from '../../private/node/ui/components/TextPrompt.js'
+import {AutocompletePromptProps, AutocompletePrompt} from '../../private/node/ui/components/AutocompletePrompt.js'
+import {InlineToken, LinkToken, TokenItem} from '../../private/node/ui/components/TokenizedText.js'
+import React from 'react'
+import {Key as InkKey, RenderOptions} from 'ink'
+import {AbortController} from '@shopify/cli-kit/node/abort'
+
+type PartialBy<T, TKey extends keyof T> = Omit<T, TKey> & Partial<Pick<T, TKey>>
+
+export interface RenderConcurrentOptions extends PartialBy<ConcurrentOutputProps, 'abortController'> {
+  renderOptions?: RenderOptions
+}
+
+/**
+ * Renders output from concurrent processes to the terminal with {@link ConcurrentOutput}.
+ */
+export async function renderConcurrent({renderOptions = {}, ...props}: RenderConcurrentOptions) {
+  const newProps = {
+    abortController: new AbortController(),
+    ...props,
+  }
+
+  return render(<ConcurrentOutput {...newProps} />, {
+    ...renderOptions,
+    exitOnCtrlC: typeof props.onInput === 'undefined',
+  })
+}
+
+export type AlertCustomSection = CustomSection
+export type RenderAlertOptions = Omit<AlertProps, 'type'>
+
+/**
+ * Renders an information banner to the console.
+ *
+ * Basic:
+ *
+ * ```
+ * ╭─ info ───────────────────────────────────────────────────╮
+ * │                                                          │
+ * │  Body                                                    │
+ * │                                                          │
+ * ╰──────────────────────────────────────────────────────────╯
+ * ```
+ *
+ * Complete:
+ * ```
+ * ╭─ info ───────────────────────────────────────────────────╮
+ * │                                                          │
+ * │  Title                                                   │
+ * │                                                          │
+ * │  Body                                                    │
+ * │                                                          │
+ * │  Next steps                                              │
+ * │    • Run `cd santorini-goods`                            │
+ * │    • To preview your project, run `npm app dev`          │
+ * │    • To add extensions, run `npm generate extension`     │
+ * │                                                          │
+ * │  Reference                                               │
+ * │    • Run `npm shopify help`                              │
+ * │    • Press 'return' to open the dev docs:                │
+ * │      https://shopify.dev                                 │
+ * │                                                          │
+ * │  Link: https://shopify.com                               │
+ * │                                                          │
+ * ╰──────────────────────────────────────────────────────────╯
+ * ```
+ */
+export function renderInfo(options: RenderAlertOptions) {
+  return alert({...options, type: 'info'})
+}
+
+/**
+ * Renders a success banner to the console.
+ *
+ * Basic:
+ *
+ * ```
+ * ╭─ success ────────────────────────────────────────────────╮
+ * │                                                          │
+ * │  Title                                                   │
+ * │                                                          │
+ * ╰──────────────────────────────────────────────────────────╯
+ * ```
+ *
+ * Complete:
+ * ```
+ * ╭─ success ────────────────────────────────────────────────╮
+ * │                                                          │
+ * │  Title                                                   │
+ * │                                                          │
+ * │  Body                                                    │
+ * │                                                          │
+ * │  Next steps                                              │
+ * │    • Run `cd santorini-goods`                              │
+ * │    • To preview your project, run `npm app dev`            │
+ * │    • To add extensions, run `npm generate extension`       │
+ * │                                                          │
+ * │  Reference                                               │
+ * │    • Run `npm shopify help`                                │
+ * │    • Press 'return' to open the dev docs:                │
+ * │      https://shopify.dev                                 │
+ * │                                                          │
+ * │  Link: https://shopify.com                               │
+ * │                                                          │
+ * ╰──────────────────────────────────────────────────────────╯
+ * ```
+ */
+export function renderSuccess(options: RenderAlertOptions) {
+  return alert({...options, type: 'success'})
+}
+
+/**
+ * Renders a warning banner to the console.
+ *
+ * Basic:
+ *
+ * ```
+ * ╭─ warning ────────────────────────────────────────────────╮
+ * │                                                          │
+ * │  Title                                                   │
+ * │                                                          │
+ * ╰──────────────────────────────────────────────────────────╯
+ * ```
+ *
+ * Complete:
+ * ```
+ * ╭─ warning ────────────────────────────────────────────────╮
+ * │                                                          │
+ * │  Title                                                   │
+ * │                                                          │
+ * │  Body                                                    │
+ * │                                                          │
+ * │  Next steps                                              │
+ * │    • Run `cd santorini-goods`                            │
+ * │    • To preview your project, run `npm app dev`          │
+ * │    • To add extensions, run `npm generate extension`     │
+ * │                                                          │
+ * │  Reference                                               │
+ * │    • Run `npm shopify help`                              │
+ * │    • Press 'return' to open the dev docs:                │
+ * │      https://shopify.dev                                 │
+ * │                                                          │
+ * │  Link: https://shopify.com                               │
+ * │                                                          │
+ * ╰──────────────────────────────────────────────────────────╯
+ * ```
+ */
+export function renderWarning(options: RenderAlertOptions) {
+  return alert({...options, type: 'warning'})
+}
+
+/**
+ * Renders a Fatal error to the console inside a banner.
+ *
+ * ```
+ * ╭─ error ──────────────────────────────────────────────────╮
+ * │                                                          │
+ * │  Couldn't connect to the Shopify Partner Dashboard.      │
+ * │                                                          │
+ * │  Check your internet connection and try again.           │
+ * │                                                          │
+ * ╰──────────────────────────────────────────────────────────╯
+ * ```
+ */
+export function renderFatalError(error: Fatal) {
+  return renderOnce(<FatalError error={error} />, 'error', consoleError)
+}
+
+/**
+ * Renders a select prompt to the console.
+ *
+ * ```
+ * ?  Associate your project with the org Castile Ventures?
+ *
+ *      Add:     • new-ext
+ *
+ *      Remove:  • integrated-demand-ext
+ *               • order-discount
+ *
+ * \>  (f) first
+ *     (s) second
+ *     (3) third
+ *     (4) fourth
+ *     (5) seventh
+ *     (6) tenth
+ *
+ *     Automations
+ *     (7) fifth
+ *     (8) sixth
+ *
+ *     Merchant Admin
+ *     (9) eighth
+ *     (10) ninth
+ *
+ *     Press ↑↓ arrows to select, enter to confirm
+ * ```
+ */
+export function renderSelectPrompt<T>(props: Omit<SelectPromptProps<T>, 'onSubmit'>): Promise<T> {
+  // eslint-disable-next-line max-params
+  return new Promise((resolve, reject) => {
+    render(<SelectPrompt {...props} onSubmit={(value: T) => resolve(value)} />, {
+      exitOnCtrlC: false,
+    }).catch(reject)
+  })
+}
+
+export interface RenderConfirmationPromptOptions extends Pick<SelectPromptProps<boolean>, 'message' | 'infoTable'> {
+  confirmationMessage?: string
+  cancellationMessage?: string
+}
+
+/**
+ * Renders a confirmation prompt to the console.
+ *
+ * ?  Do you want to continue?
+ *
+ * \>  (y) Yes, confirm
+ *     (n) No, canccel
+ *
+ *     Press ↑↓ arrows to select, enter to confirm
+ */
+export function renderConfirmationPrompt({
+  message,
+  infoTable,
+  confirmationMessage = 'Yes, confirm',
+  cancellationMessage = 'No, cancel',
+}: RenderConfirmationPromptOptions): Promise<boolean> {
+  const choices = [
+    {
+      label: confirmationMessage,
+      value: true,
+      key: 'y',
+    },
+    {
+      label: cancellationMessage,
+      value: false,
+      key: 'n',
+    },
+  ]
+
+  return renderSelectPrompt({
+    choices,
+    message,
+    infoTable,
+    submitWithShortcuts: true,
+  })
+}
+
+/**
+ * Renders an autocomplete prompt to the console.
+ * ```
+ * ?  Select a template  Type to search...
+
+ * \>  first
+ *     second
+ *     third
+
+ *  Press ↑↓ arrows to select, enter to confirm
+ * ```
+ */
+export function renderAutocompletePrompt<T>(
+  props: PartialBy<Omit<AutocompletePromptProps<T>, 'onSubmit'>, 'search'>,
+): Promise<T> {
+  const newProps = {
+    search(term: string) {
+      return Promise.resolve({
+        data: props.choices.filter((item) => item.label.toLowerCase().includes(term.toLowerCase())),
+      })
+    },
+    ...props,
+  }
+
+  // eslint-disable-next-line max-params
+  return new Promise((resolve, reject) => {
+    render(<AutocompletePrompt {...newProps} onSubmit={(value: T) => resolve(value)} />, {
+      exitOnCtrlC: false,
+    }).catch(reject)
+  })
+}
+
+/**
+ * Renders a table to the console.
+ *
+ * ```
+ * name                      role           Identifier
+ * ────────────────────────  ─────────────  ──────────
+ * Dawn                      [live]         #1361
+ * Studio                                   #1363
+ * Debut                     [unpublished]  #1374
+ * Development (1a23b4-MBP)  [development]  #1368
+ * ```
+ */
+export function renderTable<T extends ScalarDict>(props: TableProps<T>) {
+  return renderOnce(<Table {...props} />)
+}
+
+/**
+ * Runs async tasks and displays their progress to the console.
+ */
+export async function renderTasks<TContext>(tasks: Task<TContext>[]) {
+  return render(<Tasks tasks={tasks} />)
+}
+
+/**
+ * Renders a text prompt to the console.
+ * ```
+ * ?  What is your name?
+ * \>  John
+ * ```
+ */
+export function renderTextPrompt(props: Omit<TextPromptProps, 'onSubmit'>): Promise<string> {
+  // eslint-disable-next-line max-params
+  return new Promise((resolve, reject) => {
+    render(<TextPrompt {...props} onSubmit={(value: string) => resolve(value)} />, {
+      exitOnCtrlC: false,
+    }).catch(reject)
+  })
+}
+
+interface RenderTextOptions {
+  text: string
+  logLevel?: LogLevel
+  logger?: Logger
+}
+
+/** Renders a text string to the console.
+ * Using this function makes sure that correct spacing is applied among the various components. */
+export function renderText({text, logLevel = 'info', logger = consoleLog}: RenderTextOptions) {
+  let textWithLineReturn = text
+  if (!text.endsWith('\n')) textWithLineReturn += '\n'
+
+  if (isUnitTest()) collectLog(logLevel, textWithLineReturn)
+  outputWhereAppropriate(logLevel, logger, textWithLineReturn)
+}
+
+/** Waits for any key to be pressed except Ctrl+C which will terminate the process. */
+export const keypress = async () => {
+  // eslint-disable-next-line max-params
+  return new Promise((resolve, reject) => {
+    const handler = (buffer: Buffer) => {
+      process.stdin.setRawMode(false)
+      process.stdin.pause()
+
+      const bytes = Array.from(buffer)
+
+      if (bytes.length && bytes[0] === 3) {
+        outputDebug('Canceled keypress, User pressed CTRL+C')
+        reject(new AbortSilentError())
+      }
+      process.nextTick(resolve)
+    }
+
+    process.stdin.resume()
+    process.stdin.setRawMode(true)
+    process.stdin.once('data', handler)
+  })
+}
+
+export type Key = InkKey
+export {Task, TokenItem, InlineToken, LinkToken, TableColumn}
