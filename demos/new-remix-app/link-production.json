@@ -1,0 +1,49 @@
+{
+  "command": "npm run config link",
+  "steps": [
+    {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Would you like to link to an existing app on Shopify?",
+        "confirmationMessage": "Yes, link to an existing app",
+        "cancellationMessage": "No, create a new app"
+      }
+    },
+    {
+      "type": "maskedInputPrompt",
+      "properties": {
+        "message": "App name",
+        "defaultValue": "Drops Magic"
+      }
+    },
+    {
+      "type": "success",
+      "properties": {
+        "headline": "`Drops Magic` connected to this codebase.",
+        "body": [
+          "Using shopify.app.drops-magic.toml as the current configuration."
+        ],
+        "nextSteps": [
+          [
+            "To see your app, run",
+            {
+              "command": "shopify app dev"
+            }
+          ],
+          [
+            "To push configuration changes, run",
+            {
+              "command": "shopify app config push"
+            }
+          ],
+          [
+            "To switch configurations, run",
+            {
+              "command": "shopify app config use {config_name}"
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}

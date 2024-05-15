@@ -1,0 +1,14 @@
+{
+  "command": "npm run config push --config production",
+  "steps": [
+    {
+      "type": "success",
+      "properties": {
+        "headline": "Updated app configuration for `Printful`",
+        "body": [
+          "shopify.app.production.toml configuration is now live on Shopify."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "command": "cd drops-magic && npm run dev",
+  "steps": [
+    {
+      "type": "output",
+      "properties": {
+        "content": "Looks like this is the first time you're running dev for this project."
+      }
+    },
+    {
+      "type": "output",
+      "properties": {
+        "content": "Configure your preferences by answering a few questions.\n\n"
+      }
+    },
+    {
+      "type": "output",
+      "properties": {
+        "content": "Before you preview your work, it needs to be associated with an app.\n"
+      }
+    },
+    {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Create this project as a new app on Shopify?",
+        "confirmationMessage": "Yes, create it as a new app",
+        "cancellationMessage": "No, connect it to an existing app"
+      }
+    },
+    {
+      "type": "maskedInputPrompt",
+      "properties": {
+        "message": "App name",
+        "defaultValue": "Drops Magic Dev"
+      }
+    },
+    {
+      "type": "selectPrompt",
+      "properties": {
+        "message": "Which store would you like to use to view your project?",
+        "choices": [
+          {
+            "label": "rainforest-plants-store",
+            "value": "rainforest-plants-store"
+          },
+          {
+            "label": "chocolates-and-cookies-store",
+            "value": "chocolates-and-cookies-store"
+          },
+          {
+            "label": "fruits-and-veggies-store",
+            "value": "fruits-and-veggies-store"
+          }
+        ]
+      }
+    },
+    {
+      "type": "info",
+      "properties": {
+        "headline": "For your convenience, we've given your app a default URL: https://congress-concerned-halifax-spiritual.trycloudflare.com.",
+        "body": [
+          "You can update your app's URL anytime in shopify.app.drops-magic-dev.toml\nBut once your app is live, updating its URL will disrupt user access."
+        ],
+        "nextSteps": []
+      }
+    },
+    {
+      "type": "concurrent",
+      "properties": {
+        "processes": [
+          {
+            "prefix": "backend",
+            "steps": [
+              {
+                "startMessage": "> shopify-app-template-node@1.0.0 dev",
+                "duration": 1,
+                "endMessage": "cross-env NODE_ENV=development nodemon index.js --ignore ./frontend"
+              }
+            ]
+          },
+          {
+            "prefix": "frontend",
+            "steps": [
+              {
+                "startMessage": "shopify-frontend-template-react@1.0.0 dev",
+                "duration": 1,
+                "endMessage": "> Local:    http://localhost:59565/"
+              },
+              {
+                "startMessage": "watching extensions: js,mjs,json",
+                "duration": 1,
+                "endMessage": "running proccess 1"
+              },
+              {
+                "startMessage": "starting `node index.js",
+                "duration": 1.5,
+                "endMessage": "running process 2"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

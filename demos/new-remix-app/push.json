@@ -1,0 +1,14 @@
+{
+  "command": "npm run config push",
+  "steps": [
+    {
+      "type": "success",
+      "properties": {
+        "headline": "Updated app configuration for `Drops Magic Dev`",
+        "body": [
+          "shopify.app.drops-magic-dev.toml configuration is now live on Shopify."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "command": "npm run config link",
+  "steps": [
+   {
+      "type": "output",
+      "properties": {
+        "content": "To run this command, log in to Shopify Partners."
+      }
+    },
+    {
+      "type": "output",
+      "properties": {
+        "content": "👉 Press any key to open the login page on your browser"
+      }
+    },
+    {
+      "type": "output",
+      "properties": {
+        "content": "✅ Logged in.\n"
+      }
+    },
+    {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Would you like to link to an existing app on Shopify?",
+        "confirmationMessage": "Yes, link to an existing app",
+        "cancellationMessage": "No, create a new app"
+      }
+    },
+    {
+      "type": "selectPrompt",
+      "properties": {
+        "message": "Which Partners organization is this work for?",
+        "choices": [
+          {
+            "label": "Printful Inc.",
+            "value": "printful-inc"
+          },
+          {
+            "label": "Printful Intl",
+            "value": "printful-intl"
+          }
+        ]
+      }
+    },
+    {
+      "type": "selectPrompt",
+      "properties": {
+        "message": "Which app would you like to link to?",
+        "choices": [
+          {
+            "label": "Printful App",
+            "value": "printful"
+          },
+          {
+            "label": "Printful Dev",
+            "value": "development"
+          },
+          {
+            "label": "Printful Staging",
+            "value": "staging"
+          },
+          {
+            "label": "Printful (Alice)",
+            "value": "alice"
+          }
+        ]
+      }
+    },
+    {
+      "type": "maskedInputPrompt",
+      "properties": {
+        "message": "What would you like to name your configuration file?",
+        "defaultValue": "printful-staging"
+      }
+    },
+    {
+      "type": "success",
+      "properties": {
+        "headline": "`Printful Staging` connected to this codebase.",
+        "body": [
+          "Using shopify.app.staging.toml as the current configuration."
+        ],
+        "nextSteps": [
+          [
+            "To see your app, run",
+            {
+              "command": "shopify app dev"
+            }
+          ],
+          [
+            "To push configuration changes, run",
+            {
+              "command": "shopify app config push"
+            }
+          ],
+          [
+            "To switch configurations, run",
+            {
+              "command": "shopify app config use {config_name}"
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}

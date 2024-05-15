@@ -1,0 +1,88 @@
+{
+  "steps": [
+    {
+      "type": "output",
+      "properties": {
+        "content": "$ shopify app config link\n",
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Would you like to link to an existing app on Shopify?",
+        "confirmationMessage": "Yes, link to an existing app",
+        "cancellationMessage": "No, create a new app"
+      }
+    },
+    {
+      "type": "selectPrompt",
+      "properties": {
+        "message": "Which app would you like to link to?",
+        "choices": [
+          {
+            "label": "Printful App",
+            "value": "printful"
+          },
+          {
+            "label": "Printful Dev",
+            "value": "development"
+          },
+          {
+            "label": "Printful Staging",
+            "value": "staging"
+          },
+          {
+            "label": "Printful (Alice)",
+            "value": "alice"
+          }
+        ]
+      }
+    },
+    {
+      "type": "maskedInputPrompt",
+      "properties": {
+        "message": "What would you like to name your configuration file?",
+        "defaultValue": "staging"
+      }
+    },
+    {
+      "type": "warning",
+      "properties": {
+        "headline": "shopify.app.staging.toml already exists.",
+        "body": []
+      }
+    },
+    {
+      "type": "confirmationPrompt",
+      "properties": {
+        "message": "Would you like to choose another configuration file name?",
+        "confirmationMessage": "Yes, choose a new configuration file name",
+        "cancellationMessage": "No, overwrite and link Printful Staging to shopify.app.staging.toml"
+      }
+    },
+    {
+      "type": "success",
+      "properties": {
+        "headline": "`Printful Dev (Bob)` connected to this codebase.",
+        "body": [
+          "shopify.app.development.toml is now the active configuration."
+        ],
+        "nextSteps": [
+          [
+            "For extensions, run",
+            {
+              "command": "generate extension"
+            }
+          ],
+          [
+            "To see your app, run",
+            {
+              "command": "shopify app dev"
+            }
+          ]
+        ]
+      }
+    }
+  ]
+}
