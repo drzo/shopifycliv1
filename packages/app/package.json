@@ -65,10 +65,10 @@
     "graphql-request": "5.2.0",
     "h3": "0.8.6",
     "http-proxy": "1.18.1",
-    "micromatch": "4.0.5",
+    "micromatch": "4.0.8",
     "react": "^18.2.0",
     "react-dom": "18.2.0",
-    "ws": "8.17.0"
+    "ws": "8.17.1"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.5",
